@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 const objectAssign = require('object-assign');
 const electron = require('electron');
 const BrowserWindow = electron.BrowserWindow;
+const querystring = require('querystring');
 
 module.exports = function (config, windowParams) {
   function getAuthorizationCode(opts) {
@@ -38,11 +39,24 @@ module.exports = function (config, windowParams) {
       authWindow.on('closed', () => {
         reject(new Error('window was closed by user'));
       });
+      function handleCallback(newUrl) {
+        var code,error;
 
-      authWindow.webContents.on('did-get-redirect-request', (event, oldUrl, newUrl) => {
-        var rawCode = /\?code=(.+)$/.exec(newUrl) || /authorize\/([^&]*)/.exec(newUrl);
-        var code = (rawCode && rawCode.length > 1) ? rawCode[1] : null;
-        var error = /\?error=(.+)$/.exec(newUrl);
+        if (newUrl.search(/\?/)) {
+          console.log('queryString');
+          var queryObj = querystring.parse(newUrl.split('?')[1]);
+          if (queryObj.code) {
+            code = queryObj.code;
+          }
+          if (queryObj.error) {
+            error = queryObj.error;
+          }
+          console.log(queryObj);
+        } else {
+          var rawCode = /authorize\/([^&]*)/.exec(newUrl);
+          code = (rawCode && rawCode.length > 1) ? rawCode[1] : null;
+          error = /\?error=(.+)$/.exec(newUrl);
+        }
 
         if (error) {
           reject(error);
@@ -53,6 +67,13 @@ module.exports = function (config, windowParams) {
           authWindow.removeAllListeners('closed');
           authWindow.destroy();
         }
+      }
+
+      authWindow.webContents.on('will-navigate', (event, url) => {
+        handleCallback(url);
+      });
+      authWindow.webContents.on('did-get-redirect-request', (event, oldUrl, newUrl) => {
+        handleCallback(newUrl);
       });
     });
   }
