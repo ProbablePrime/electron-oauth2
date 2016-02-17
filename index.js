@@ -58,11 +58,11 @@ module.exports = function (config, windowParams) {
         if (error) {
           reject(error);
           authWindow.removeAllListeners('closed');
-          authWindow.destroy();
+          authWindow.close();
         } else if (code) {
           resolve(code);
           authWindow.removeAllListeners('closed');
-          authWindow.destroy();
+          authWindow.close();
         }
       }
 
