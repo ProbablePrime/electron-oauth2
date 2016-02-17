@@ -4,7 +4,6 @@ const fetch = require('node-fetch');
 const objectAssign = require('object-assign');
 const electron = require('electron');
 const BrowserWindow = electron.BrowserWindow;
-const querystring = require('querystring');
 
 module.exports = function (config, windowParams) {
   function getAuthorizationCode(opts) {
@@ -43,15 +42,13 @@ module.exports = function (config, windowParams) {
         var code,error;
 
         if (newUrl.search(/\?/)) {
-          console.log('queryString');
-          var queryObj = querystring.parse(newUrl.split('?')[1]);
+          var queryObj = queryString.parse(newUrl.split('?')[1]);
           if (queryObj.code) {
             code = queryObj.code;
           }
           if (queryObj.error) {
             error = queryObj.error;
           }
-          console.log(queryObj);
         } else {
           var rawCode = /authorize\/([^&]*)/.exec(newUrl);
           code = (rawCode && rawCode.length > 1) ? rawCode[1] : null;
