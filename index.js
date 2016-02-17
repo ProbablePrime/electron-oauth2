@@ -11,7 +11,7 @@ module.exports = function (config, windowParams) {
     opts = opts || {};
 
     if (!config.redirect_uri) {
-      config.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
+      config.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob';
     }
 
     var urlParams = {
@@ -108,7 +108,7 @@ module.exports = function (config, windowParams) {
         return tokenRequest({
           code: authorizationCode,
           grant_type: 'authorization_code',
-          redirect_uri: opts.redirect_uri
+          redirect_uri: config.redirect_uri
         });
       });
   }
@@ -117,7 +117,7 @@ module.exports = function (config, windowParams) {
     return tokenRequest({
       refresh_token: refreshToken,
       grant_type: 'refresh_token',
-      redirect_uri: opts.redirect_uri
+      redirect_uri: config.redirect_uri
     });
   }
 
